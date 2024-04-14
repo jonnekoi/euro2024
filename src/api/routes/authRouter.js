@@ -7,3 +7,4 @@ authRouter.route('/register').post(postUser);
 authRouter.route('/login').post(postLogin);
 
 export default authRouter;
+

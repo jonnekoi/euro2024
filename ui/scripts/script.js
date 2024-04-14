@@ -7,6 +7,11 @@ const formContainer = document.querySelector('#form-container');
 const logOutButton = document.querySelector('#logoutButton');
 const tableContainer = document.querySelector('.table-container');
 const pointsTableContainer = document.querySelector('#points-table-container');
+const loginForm = document.querySelector('#login-form');
+const logOut = document.querySelector('#logoutButton');
+
+// get user from sessionStorage
+let user = JSON.parse(sessionStorage.getItem('user'));
 
 addUserForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();
@@ -23,9 +28,40 @@ addUserForm.addEventListener('submit', async (evt) => {
   const response = await fetch(url + '/auth/register', fetchOptions);
   console.log('virhe', response);
   const json = await response.json();
-  startApp();
+  startApp(true);
 });
 
+loginForm.addEventListener('submit', async (evt) => {
+  evt.preventDefault();
+  const data = serializeJson(loginForm);
+  const fetchOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  };
+
+  const response = await fetch(url + '/auth/login', fetchOptions);
+  const json = await response.json();
+  if (!json.user) {
+    alert(json.error.message);
+  } else {
+    // save token and user
+    sessionStorage.setItem('token', json.token);
+    sessionStorage.setItem('user', JSON.stringify(json.user));
+    user = JSON.parse(sessionStorage.getItem('user'));
+    startApp();
+  }
+});
+
+logOut.addEventListener('click', async (evt) => {
+  evt.preventDefault();
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
+  confirm('Are you sure?');
+  stopApp();
+});
 
 const getMatches = async () => {
   try {
@@ -79,3 +115,11 @@ async function startApp(){
   tableContainer.style.display = 'block';
   pointsTableContainer.style.display = 'block';
 }
+
+function stopApp(){
+  tableContainer.style.display = 'none';
+  pointsTableContainer.style.display = 'none';
+  formContainer.style.display = 'block';
+  logOutButton.style.display = 'none';
+}
+
