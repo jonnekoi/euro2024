@@ -111,7 +111,6 @@ const getPoints = async () => {
 }
 
 document.getElementById('matchesData').addEventListener('click', async function(event) {
-  // Check if the clicked element is a button to submit a guess
   if (event.target.classList.contains('submit-guess')) {
     const button = event.target;
     const matchId = button.getAttribute('data-match-id');
@@ -130,7 +129,6 @@ document.getElementById('matchesData').addEventListener('click', async function(
       if (!response.ok) {
         throw new Error('HTTP error! Status: ' + response.status);
       }
-      await getMatches();
     } catch (error) {
       console.error('Error submitting guess:', error);
     }
