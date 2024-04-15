@@ -29,7 +29,7 @@
             </form>
             <form class="light-border" id="add-user-form">
                 <div>
-                    <label for="reg-name">Username:</label>
+                    <label for="reg-name">Name:</label>
                     <input class="light-border" type="text" name="name" pattern=".{3,}" placeholder="Name" required id="reg-name">
                 </div>
                 <div>
@@ -77,6 +77,30 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="adminContainer" style="display: none">
+        <h2>Add match</h2>
+        <form class="form-container" id="add-match-form">
+            <div>
+                <label for="homeTeam">Home Team:</label>
+                <input class="light-border" type="text" name="homeTeam" id="homeTeam" placeholder="Home team">
+            </div>
+            <div>
+                <label for="awayTeam">Away Team:</label>
+                <input class="light-border" type="text" name="awayTeam" id="awayTeam" placeholder="Away team">
+            </div>
+            <div>
+                <label for="homeScore">Home Score:</label>
+                <input class="light-border" type="number" name="homeScore" id="homeScore" placeholder="Home score">
+            </div>
+            <div>
+                <label for="awayScore">Away Score:</label>
+                <input class="light-border" type="number" name="awayScore" id="awayScore" placeholder="Away Score">
+            </div>
+            <div>
+                <button class="light-border" type="submit" id="addMatchButton">Add match</button>
+            </div>
+        </form>
     </div>
 </body>
 </html>

@@ -9,9 +9,48 @@ const tableContainer = document.querySelector('.table-container');
 const pointsTableContainer = document.querySelector('#points-table-container');
 const loginForm = document.querySelector('#login-form');
 const logOut = document.querySelector('#logoutButton');
+let isAdmin = false;
+const addMatchForm = document.querySelector('#add-match-form');
+const adminContainer = document.querySelector('.adminContainer');
 
 // get user from sessionStorage
 let user = JSON.parse(sessionStorage.getItem('user'));
+document.addEventListener('DOMContentLoaded', async function () {
+  if (user) {
+    isAdmin = user.role === 'admin';
+    if (isAdmin) {
+      startAdmin();
+    } else {
+      startApp();
+    }
+  } else {
+    stopApp();
+  }
+});
+
+addMatchForm.addEventListener('submit', async (evt) =>{
+  evt.preventDefault();
+  const data = serializeJson(addMatchForm);
+  const fetchOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  };
+  try{
+    const response = await fetch(url + '/get/matches/', fetchOptions);
+    if (!response.ok){
+      const errorData = await response.json();
+      alert("Error adding match")
+      console.log(errorData);
+    } else {
+      alert("Match added");
+    }
+  } catch (error){
+    console.log(error)
+  }
+});
 
 addUserForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();
@@ -24,11 +63,18 @@ addUserForm.addEventListener('submit', async (evt) => {
     },
     body: JSON.stringify(data),
   };
-  //console.log(data);
-  const response = await fetch(url + '/auth/register', fetchOptions);
-  console.log('virhe', response);
-  const json = await response.json();
-  startApp(true);
+  try {
+    const response = await fetch(url + '/auth/register', fetchOptions);
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.message);
+      return;
+    }
+    startApp();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    alert('An error occurred while registering. Please try again.');
+  }
 });
 
 loginForm.addEventListener('submit', async (evt) => {
@@ -42,16 +88,26 @@ loginForm.addEventListener('submit', async (evt) => {
     body: JSON.stringify(data),
   };
 
-  const response = await fetch(url + '/auth/login', fetchOptions);
-  const json = await response.json();
-  if (!json.user) {
-    alert(json.error.message);
-  } else {
-    // save token and user
-    sessionStorage.setItem('token', json.token);
-    sessionStorage.setItem('user', JSON.stringify(json.user));
-    user = JSON.parse(sessionStorage.getItem('user'));
-    startApp();
+  try {
+    const response = await fetch(url + '/auth/login', fetchOptions);
+    const json = await response.json();
+    if (!json.user) {
+      alert(json.error.message);
+    } else {
+      sessionStorage.setItem('token', json.token);
+      sessionStorage.setItem('user', JSON.stringify(json.user));
+      user = json.user;
+      isAdmin = user.role === 'admin';
+
+      if (isAdmin) {
+        startAdmin();
+      } else {
+        startApp();
+      }
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    alert('Failed to login. Please check console for details.');
   }
 });
 
@@ -59,7 +115,7 @@ logOut.addEventListener('click', async (evt) => {
   evt.preventDefault();
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('user');
-  confirm('Are you sure?');
+  isAdmin = false;
   stopApp();
 });
 
@@ -136,13 +192,24 @@ document.getElementById('matchesData').addEventListener('click', async function(
 });
 
 
+async function startAdmin() {
+  adminContainer.style.display = 'block';
+  logOutButton.style.display = 'block';
+  tableContainer.style.display = 'none';
+  pointsTableContainer.style.display = 'none';
+  formContainer.style.display = 'none';
+}
+
 async function startApp(){
+  adminContainer.style.display = 'none';
   formContainer.style.display = 'none';
   logOutButton.style.display = 'block';
   await getMatches();
   await getPoints();
-  tableContainer.style.display = 'block';
-  pointsTableContainer.style.display = 'block';
+  if (!isAdmin) {
+    tableContainer.style.display = 'block';
+    pointsTableContainer.style.display = 'block';
+  }
 }
 
 function stopApp(){
@@ -150,5 +217,6 @@ function stopApp(){
   pointsTableContainer.style.display = 'none';
   formContainer.style.display = 'block';
   logOutButton.style.display = 'none';
+  adminContainer.style.display = 'none';
 }
 

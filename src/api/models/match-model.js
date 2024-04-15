@@ -16,4 +16,11 @@ const setScore = async (matchId, guess, username) => {
   const post = await promisePool.query(`UPDATE ${userTableName} SET guess = '${guess}' WHERE id = ${matchId}`);
 }
 
-export {getMatches, fetchPoints, setScore};
+const addMatchToDatabase = async (match) => {
+  const {homeTeam, awayTeam, homeScore, awayScore} = match;
+  const sql =`INSERT INTO matches (homeTeam, awayTeam, homeScore, awayScore) VALUES (?, ?, ?, ?)`;
+  const params = [homeTeam, awayTeam, homeScore, awayScore];
+  await promisePool.execute(sql, params);
+};
+
+export {getMatches, fetchPoints, setScore, addMatchToDatabase};

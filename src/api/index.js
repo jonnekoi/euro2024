@@ -1,6 +1,6 @@
 import express from 'express';
 import authRouter from './routes/authRouter.js';
-import {matchRouter} from './routes/matchRouter.js';
+import matchRouter from './routes/matchRouter.js';
 
 const router = express.Router();
 

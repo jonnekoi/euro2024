@@ -2,6 +2,12 @@ import promisePool from '../../utils/database.js';
 
 const addUser = async (user) => {
   const {name, username, email, role, password} = user;
+
+  const existingUser = await getUserByUsername(username);
+  if (existingUser) {
+    return { error: true, message: 'Username already exists' };
+  }
+
   const sql = `INSERT INTO users (name, username, email, role, password) VALUES (?, ?, ?, ?, ?)`;
   const params = [name, username, email, role, password];
   const [result] = await promisePool.execute(sql, params);
@@ -20,3 +26,4 @@ const getUserByUsername = async (username) => {
 };
 
 export {addUser, getUserByUsername};
+
