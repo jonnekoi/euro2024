@@ -25,5 +25,12 @@ const getUserByUsername = async (username) => {
   return rows[0];
 };
 
-export {addUser, getUserByUsername};
+const getAllUsers = async () => {
+  const sql = `SELECT username
+              FROM users`;
+  const [rows] = await promisePool.execute(sql);
+  return rows;
+}
+
+export {addUser, getUserByUsername, getAllUsers};
 

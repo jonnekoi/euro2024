@@ -1,5 +1,12 @@
-import {getMatches, fetchPoints, setScore, addMatchToDatabase} from '../models/match-model.js';
+import {
+  getMatches,
+  fetchPoints,
+  setScore,
+  addMatchToDatabase,
+  addMatchToUserTables,
+} from '../models/match-model.js';
 import {createMatchesForUser} from '../models/tableModel.js';
+import {getAllUsers} from '../models/user-models.js';
 
 const postMatches = async (req, res) => {
   const username = req.params.username;
@@ -36,6 +43,9 @@ const addMatch = async (req, res) => {
   }
   try {
     await addMatchToDatabase(req.body);
+    const users = await getAllUsers();
+    console.log(users);
+    await addMatchToUserTables(req.body, users);
     res.status(201).send({ message: "Match added" });
   } catch (error) {
     console.error("Error adding match:", error);
