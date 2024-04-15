@@ -117,6 +117,11 @@ logOut.addEventListener('click', async (evt) => {
   sessionStorage.removeItem('user');
   isAdmin = false;
   stopApp();
+
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.value = '';
+  });
 });
 
 const getMatches = async () => {
@@ -129,13 +134,17 @@ const getMatches = async () => {
 
     const tableRows = rows.map((row) => {
       const matchId = row.id;
+      let submitButton = '';
+      if (!row.guess) {
+        submitButton = `<td><button type="button" class="submit-guess" data-match-id="${matchId}">Submit Guess</button></td>`;
+      }
       return `<tr>
                 <td>${row.homeTeam}</td>
                 <td>${row.awayTeam}</td>
                 <td>${row.homeScore}-${row.awayScore}</td>
                 <td>${row.guess}</td>
                 <td><input type="text" name="guess" placeholder="e.g. 1-1" class="light-border guess-input"></td>
-                <td><button type="button" class="submit-guess" data-match-id="${matchId}">Submit Guess</button></td>
+                ${submitButton}
               </tr>`;
     }).join('');
     document.getElementById('matchesData').innerHTML = tableRows;
@@ -172,6 +181,13 @@ document.getElementById('matchesData').addEventListener('click', async function(
     const matchId = button.getAttribute('data-match-id');
     const guess = button.parentElement.previousElementSibling.firstElementChild.value;
     const username = user.username;
+
+    // Validate the guess
+    const guessFormat = /^\d+-\d+$/;
+    if (!guessFormat.test(guess)) {
+      alert('Enter a correct score for example 2-2');
+      return;
+    }
 
     try {
       const response = await fetch(url + '/get/points', {
