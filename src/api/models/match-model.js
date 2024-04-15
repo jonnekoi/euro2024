@@ -1,7 +1,7 @@
 import promisePool from '../../utils/database.js';
 
 const getMatches = async () => {
-  const [rows] = await promisePool.query('SELECT homeTeam, awayTeam FROM matches');
+  const [rows] = await promisePool.query(`SELECT homeTeam, awayTeam FROM matches`);
   return rows;
 };
 

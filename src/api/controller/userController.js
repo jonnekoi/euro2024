@@ -1,5 +1,6 @@
-import {addUser} from '../models/user-models.js';
+import {addUser, getUserByUsername} from '../models/user-models.js';
 import bcrypt from 'bcrypt';
+import {createMatchesForUser} from '../models/tableModel.js';
 
 const postUser = async (req, res) => {
   //console.log('post user', req.body);
@@ -9,6 +10,7 @@ const postUser = async (req, res) => {
     const error = new Error("Invalid or missing fields");
     error.status = 400;
   } else {
+    await createMatchesForUser(req.body.username);
     res.status(201).json({message: "register OK"});
     console.log("Register OK");
   }
