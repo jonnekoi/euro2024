@@ -1,9 +1,13 @@
 import express from 'express';
-import {postMatches, getPoints} from '../controller/matchController.js';
+import {
+  postMatches,
+  getPoints,
+  postScore,
+} from '../controller/matchController.js';
 
 const matchRouter = express.Router();
 
-matchRouter.route('/matches/').get(postMatches);
-matchRouter.route('/points').get(getPoints);
+matchRouter.route('/matches/:username').get(postMatches);
+matchRouter.route('/points').get(getPoints).post(postScore);
 
 export {matchRouter};

@@ -63,7 +63,7 @@ input.light-border, button.light-border {
     border-radius: 4px;
 }
 
-button.light-border {
+button.light-border, button.submit-guess {
     background-color: #4CAF50;
     color: #ffffff;
     cursor: pointer;
@@ -75,7 +75,7 @@ button.light-border {
     margin-left: 5px;
 }
 
-button.light-border:hover {
+button.light-border:hover, button.submit-guess:hover {
     background-color: #45a049;
 }
 

@@ -1,8 +1,8 @@
-import {getMatches, fetchPoints} from '../models/match-model.js';
+import {getMatches, fetchPoints, setScore} from '../models/match-model.js';
 
 const postMatches = async (req, res) => {
-  const result = await getMatches();
-  console.log(result);
+  const username = req.params.username;
+  const result = await getMatches(username);
   if(result){
     res.send(result);
   }
@@ -10,10 +10,20 @@ const postMatches = async (req, res) => {
 
 const getPoints = async (req, res) => {
   const result = await fetchPoints();
-  console.log(result);
   if(result){
     res.send(result);
   }
 }
 
-export {postMatches, getPoints};
+const postScore = async (req, res) => {
+  const matchId = req.body.matchId;
+  const guess = req.body.guess;
+  const username = req.body.username;
+  const result = await setScore(matchId, guess, username);
+  console.log("post score", result);
+  if(result){
+    res.sendStatus(201);
+  }
+}
+
+export {postMatches, getPoints, postScore};

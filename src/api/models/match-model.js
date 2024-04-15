@@ -1,7 +1,8 @@
 import promisePool from '../../utils/database.js';
 
-const getMatches = async () => {
-  const [rows] = await promisePool.query(`SELECT homeTeam, awayTeam FROM matches`);
+const getMatches = async (username) => {
+  const userTableName = 'user_' + username + '_matches';
+  const [rows] = await promisePool.query(`SELECT id, homeTeam, awayTeam, homeScore, awayScore, guess  FROM ${userTableName}`);
   return rows;
 };
 
@@ -10,4 +11,9 @@ const fetchPoints = async () => {
   return rows;
 }
 
-export {getMatches, fetchPoints};
+const setScore = async (matchId, guess, username) => {
+  const userTableName = 'user_' + username + '_matches';
+  const post = await promisePool.query(`UPDATE ${userTableName} SET guess = '${guess}' WHERE id = ${matchId}`);
+}
+
+export {getMatches, fetchPoints, setScore};

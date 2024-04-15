@@ -65,18 +65,21 @@ logOut.addEventListener('click', async (evt) => {
 
 const getMatches = async () => {
   try {
-    const response = await fetch(url + '/get/matches')
+    const response = await fetch(url + `/get/matches/${user.username}`)
     if(!response.ok) {
       throw new Error("Error", response.statusText);
     }
     const rows = await response.json();
 
     const tableRows = rows.map((row) => {
+      const matchId = row.id;
       return `<tr>
                 <td>${row.homeTeam}</td>
                 <td>${row.awayTeam}</td>
-                <td>${row.homeScore || ''}-${row.awayScore || ''}</td>
+                <td>${row.homeScore}-${row.awayScore}</td>
+                <td>${row.guess}</td>
                 <td><input type="text" name="guess" placeholder="e.g. 1-1" class="light-border guess-input"></td>
+                <td><button type="button" class="submit-guess" data-match-id="${matchId}">Submit Guess</button></td>
               </tr>`;
     }).join('');
     document.getElementById('matchesData').innerHTML = tableRows;
@@ -106,6 +109,34 @@ const getPoints = async () => {
     document.getElementById('pointsData').innerHTML = `<tr><td colspan="4">Error loading points.</td></tr>`;
   }
 }
+
+document.getElementById('matchesData').addEventListener('click', async function(event) {
+  // Check if the clicked element is a button to submit a guess
+  if (event.target.classList.contains('submit-guess')) {
+    const button = event.target;
+    const matchId = button.getAttribute('data-match-id');
+    const guess = button.parentElement.previousElementSibling.firstElementChild.value;
+    const username = user.username;
+
+    try {
+      const response = await fetch(url + '/get/points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ matchId, guess, username })
+      });
+
+      if (!response.ok) {
+        throw new Error('HTTP error! Status: ' + response.status);
+      }
+      await getMatches();
+    } catch (error) {
+      console.error('Error submitting guess:', error);
+    }
+  }
+});
+
 
 async function startApp(){
   formContainer.style.display = 'none';
