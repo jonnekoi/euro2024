@@ -20,21 +20,21 @@ body {
 header {
     width: 100%;
     text-align: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 #form-container {
     flex: 1;
-    padding: 20px;
+    padding: 1.25rem;
     max-width: 100%;
-    margin-right: 500px;
-    margin-left: 500px;
+    margin-right: 31.25rem;
+    margin-left: 31.25rem;
 }
 
 .table-container, #points-table-container {
     flex: 2;
-    padding: 20px;
+    padding: 1.25rem;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
@@ -51,20 +51,20 @@ header {
 form.light-border {
     display: grid;
     border: 2px solid #cccccc;
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
     background-color: #f9f9f9;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     align-items: center;
     justify-content: center;
 }
 
 input.light-border, button.light-border {
     border: 1px solid #cccccc;
-    padding: 10px;
+    padding: 0.625rem;
     width: 80%;
-    margin-top: 10px;
-    border-radius: 4px;
+    margin-top: 0.625rem;
+    border-radius: 0.25rem;
 }
 
 button.light-border, button.submit-guess {
@@ -72,11 +72,11 @@ button.light-border, button.submit-guess {
     color: #ffffff;
     cursor: pointer;
     border: none;
-    padding: 12px 20px;
+    padding: 0.75rem 1.25rem;
     transition: background-color 0.3s ease;
     display: block;
     width: calc(100% - 24px);
-    margin-left: 5px;
+    margin-left: 0.313rem;
 }
 
 button.light-border:hover, button.submit-guess:hover {
@@ -85,22 +85,22 @@ button.light-border:hover, button.submit-guess:hover {
 
 label {
     display: block;
-    margin-top: 15px;
+    margin-top: 0.938rem;
     font-weight: bold;
 }
 
 table.matches-table {
     width: 100%;
-    max-height: 600px;
+    max-height: 6.25rem;
     border-collapse: collapse;
     overflow-y: auto;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
     border: 2px solid black;
 }
 
 .matches-table th, .matches-table td {
     text-align: center;
-    padding: 10px;
+    padding: 0.625rem;
     border: 2px solid black;
 }
 table tr:hover{
@@ -121,8 +121,46 @@ input.guess-input {
 
 #logoutButton {
     width: 10%;
-    margin-left: 70px;
+    margin-left: 4.375rem;
 }
 
+@media (max-width: 750px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+
+    #form-container, .table-container, #points-table-container {
+        margin-right: 0;
+        margin-left: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    .table-container {
+        width: 100%;
+    }
+
+    #points-table-container {
+        width: 100%;
+    }
+
+    input.light-border, button.light-border {
+        width: 90%;
+    }
+
+    button.light-border, button.submit-guess {
+        width: calc(100% - 12px);
+    }
+
+    #logoutButton {
+        width: 90%;
+        margin-left: 0.5rem;
+    }
+
+    .table-container, #points-table-container {
+        text-align: center;
+        overflow-x: auto;
+    }
+}
 
 
