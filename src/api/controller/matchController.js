@@ -3,7 +3,10 @@ import {
   fetchPoints,
   setScore,
   addMatchToDatabase,
-  addMatchToUserTables, addResultToDatabase, addResultToUserTables,
+  addMatchToUserTables,
+  addResultToDatabase,
+  addResultToUserTables,
+  updateUserPoints,
 } from '../models/match-model.js';
 import {createMatchesForUser} from '../models/tableModel.js';
 import {getAllUsers} from '../models/user-models.js';
@@ -64,6 +67,7 @@ const addResult = async (req, res) => {
     await addResultToDatabase(req.body);
     const users = await getAllUsers();
     await addResultToUserTables(req.body, users);
+    await updateUserPoints(users);
     res.status(201).send({ message: "Result added" });
     console.log("Result Add OK");
   } catch (error) {
