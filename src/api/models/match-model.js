@@ -23,12 +23,34 @@ const addMatchToDatabase = async (match) => {
   await promisePool.execute(sql, params);
 };
 
+const addResultToDatabase = async (result) => {
+  const {homeTeam, awayTeam, homeScore, awayScore} = result;
+  const sql = `UPDATE matches SET homeScore = ?, awayScore = ? WHERE homeTeam = ? AND awayTeam = ?`;
+  const params = [homeScore, awayScore, homeTeam, awayTeam];
+  await promisePool.execute(sql, params);
+}
+
+const addResultToUserTables = async (result, users) => {
+  const {homeTeam, awayTeam, homeScore, awayScore} = result;
+  for (const user of users) {
+    const tableName = `user_${user.username}_matches`;
+    const sql = `UPDATE ${tableName} SET homeScore = ?, awayScore = ? WHERE homeTeam = ? AND awayTeam = ?`;
+    const params = [homeScore, awayScore, homeTeam, awayTeam];
+    try {
+      await promisePool.execute(sql, params);
+      console.log(`Result added to ${tableName}`);
+    } catch (error) {
+      console.error(`Error adding match to ${tableName}:`, error);
+    }
+  }
+};
+
 const addMatchToUserTables = async (match, users) => {
   const { homeTeam, awayTeam, homeScore, awayScore } = match;
   for (const user of users) {
     const tableName = `user_${user.username}_matches`;
     const sql = `INSERT INTO ${tableName} (homeTeam, awayTeam, homeScore, awayScore) VALUES (?, ?, ?, ?)`;
-    const params = [homeTeam, awayTeam, homeScore, awayScore]; // 'guess' is initially set to null
+    const params = [homeTeam, awayTeam, homeScore, awayScore];
 
     try {
       await promisePool.execute(sql, params);
@@ -39,4 +61,4 @@ const addMatchToUserTables = async (match, users) => {
   }
 };
 
-export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables};
+export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables};

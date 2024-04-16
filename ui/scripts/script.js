@@ -12,6 +12,7 @@ const logOut = document.querySelector('#logoutButton');
 let isAdmin = false;
 const addMatchForm = document.querySelector('#add-match-form');
 const adminContainer = document.querySelector('.adminContainer');
+const addResultForm = document.querySelector('#add-result-form');
 
 // get user from sessionStorage
 let user = JSON.parse(sessionStorage.getItem('user'));
@@ -51,6 +52,31 @@ addMatchForm.addEventListener('submit', async (evt) =>{
     console.log(error)
   }
 });
+
+addResultForm.addEventListener('submit', async (evt) =>{
+  evt.preventDefault();
+  const data = serializeJson(addResultForm);
+  const fetchOptions = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  };
+  try {
+    const response = await fetch(url + '/get/matches/', fetchOptions);
+    if (!response.ok){
+      const errorData = await response.json();
+      alert("Error adding result")
+      console.log(errorData);
+    } else {
+      alert("Result added");
+    }
+  } catch (error){
+    console.log(error)
+  }
+});
+
 
 addUserForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();

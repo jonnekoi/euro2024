@@ -3,7 +3,7 @@ import {
   fetchPoints,
   setScore,
   addMatchToDatabase,
-  addMatchToUserTables,
+  addMatchToUserTables, addResultToDatabase, addResultToUserTables,
 } from '../models/match-model.js';
 import {createMatchesForUser} from '../models/tableModel.js';
 import {getAllUsers} from '../models/user-models.js';
@@ -53,4 +53,23 @@ const addMatch = async (req, res) => {
   }
 };
 
-export {postMatches, getPoints, postScore, addMatch};
+const addResult = async (req, res) => {
+  const result = {
+    homeTeam: req.body.homeTeam,
+    awayTeam: req.body.awayTeam,
+    homeScore: req.body.homeScore,
+    awayScore: req.body.awayScore
+  }
+  try {
+    await addResultToDatabase(req.body);
+    const users = await getAllUsers();
+    await addResultToUserTables(req.body, users);
+    res.status(201).send({ message: "Result added" });
+    console.log("Result Add OK");
+  } catch (error) {
+    console.error("Error adding result:", error);
+    res.status(500).send({ message: error.message || "Internal Server Error" });
+  }
+};
+
+export {postMatches, getPoints, postScore, addMatch, addResult};
