@@ -29,8 +29,13 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 });
 
-addMatchForm.addEventListener('submit', async (evt) =>{
+addMatchForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();
+  if (!isAdmin) {
+    alert('Only admins can add matches.');
+    return;
+  }
+
   const data = serializeJson(addMatchForm);
   const fetchOptions = {
     method: 'POST',
@@ -39,22 +44,27 @@ addMatchForm.addEventListener('submit', async (evt) =>{
     },
     body: JSON.stringify(data),
   };
-  try{
+  try {
     const response = await fetch(url + '/get/matches/', fetchOptions);
-    if (!response.ok){
+    if (!response.ok) {
       const errorData = await response.json();
       alert("Error adding match")
       console.log(errorData);
     } else {
       alert("Match added");
     }
-  } catch (error){
+  } catch (error) {
     console.log(error)
   }
 });
 
-addResultForm.addEventListener('submit', async (evt) =>{
+addResultForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();
+  if (!isAdmin) {
+    alert('Only admins can add results.');
+    return;
+  }
+
   const data = serializeJson(addResultForm);
   const fetchOptions = {
     method: 'PUT',
@@ -65,14 +75,14 @@ addResultForm.addEventListener('submit', async (evt) =>{
   };
   try {
     const response = await fetch(url + '/get/matches/', fetchOptions);
-    if (!response.ok){
+    if (!response.ok) {
       const errorData = await response.json();
       alert("Error adding result")
       console.log(errorData);
     } else {
       alert("Result added");
     }
-  } catch (error){
+  } catch (error) {
     console.log(error)
   }
 });
@@ -188,11 +198,13 @@ const getPoints = async () => {
     }
     const rows = await response.json();
 
-    const tableRows = rows.map((row) =>{
-      return `<tr>
-                <td>${row.username}</td>
-                <td>${row.points}</td>
-              </tr>`;
+    const tableRows = rows.map((row) => {
+      if (row.username !== 'admin') {
+        return `<tr>
+                  <td>${row.username}</td>
+                  <td>${row.points}</td>
+                </tr>`;
+      }
     }).join('');
     document.getElementById('pointsData').innerHTML = tableRows;
   } catch (error) {
