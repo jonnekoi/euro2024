@@ -54,7 +54,6 @@ const addMatchToUserTables = async (match, users) => {
 
     try {
       await promisePool.execute(sql, params);
-      console.log(`Match added to ${tableName}`);
     } catch (error) {
       console.error(`Error adding match to ${tableName}:`, error);
     }

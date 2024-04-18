@@ -27,7 +27,7 @@ const postLogin = async (req, res) => {
   const token = jwt.sign(userWithNoPassword, process.env.JWT_SECRET, {
     expiresIn: '24h',
   });
-  res.json({user: userWithNoPassword, token});
+  res.json({ user: userWithNoPassword, token });
 };
 
 export {postLogin};
