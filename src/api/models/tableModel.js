@@ -6,9 +6,10 @@ const createMatchesForUser = async (username) => {
       throw new Error('Username must be a string');
     }
     const userTableName = 'user_' + username + '_matches';
-    await promisePool.query(`CREATE TABLE ${userTableName} AS SELECT * FROM matches`);
+    await promisePool.query('CREATE TABLE ?? AS SELECT * FROM matches', [userTableName]);
   } catch (error) {
     console.error(error);
+    throw error;
   }
 };
 

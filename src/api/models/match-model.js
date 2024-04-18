@@ -1,33 +1,58 @@
 import promisePool from '../../utils/database.js';
 
 const getMatches = async (username) => {
-  const userTableName = 'user_' + username + '_matches';
-  const [rows] = await promisePool.query(`SELECT id, homeTeam, awayTeam, homeScore, awayScore, guess  FROM ${userTableName}`);
-  return rows;
+  try {
+    const userTableName = 'user_' + username + '_matches';
+    const [rows] = await promisePool.query(`SELECT id, homeTeam, awayTeam, homeScore, awayScore, guess  FROM ${userTableName}`);
+    return rows;
+  } catch (error) {
+    console.error('Error in getMatches:', error);
+    throw error;
+  }
 };
 
 const fetchPoints = async () => {
-  const [rows] = await promisePool.query('SELECT username, points FROM users ORDER BY points DESC LIMIT 5');
-  return rows;
+  try {
+    const [rows] = await promisePool.query('SELECT username, points FROM users ORDER BY points DESC LIMIT 5');
+    return rows;
+  } catch (error) {
+    console.error('Error in fetchPoints:', error);
+    throw error;
+  }
 }
 
 const setScore = async (matchId, guess, username) => {
-  const userTableName = 'user_' + username + '_matches';
-  const post = await promisePool.query(`UPDATE ${userTableName} SET guess = '${guess}' WHERE id = ${matchId}`);
+  try {
+    const userTableName = 'user_' + username + '_matches';
+    const post = await promisePool.query(`UPDATE ${userTableName} SET guess = '${guess}' WHERE id = ${matchId}`);
+  } catch (error) {
+    console.error('Error in setScore:', error);
+    throw error;
+  }
 }
 
 const addMatchToDatabase = async (match) => {
-  const {homeTeam, awayTeam, homeScore, awayScore} = match;
-  const sql =`INSERT INTO matches (homeTeam, awayTeam, homeScore, awayScore) VALUES (?, ?, ?, ?)`;
-  const params = [homeTeam, awayTeam, homeScore, awayScore];
-  await promisePool.execute(sql, params);
+  try {
+    const {homeTeam, awayTeam, homeScore, awayScore} = match;
+    const sql =`INSERT INTO matches (homeTeam, awayTeam, homeScore, awayScore) VALUES (?, ?, ?, ?)`;
+    const params = [homeTeam, awayTeam, homeScore, awayScore];
+    await promisePool.execute(sql, params);
+  } catch (error) {
+    console.error('Error in addMatchToDatabase:', error);
+    throw error;
+  }
 };
 
 const addResultToDatabase = async (result) => {
-  const {homeTeam, awayTeam, homeScore, awayScore} = result;
-  const sql = `UPDATE matches SET homeScore = ?, awayScore = ? WHERE homeTeam = ? AND awayTeam = ?`;
-  const params = [homeScore, awayScore, homeTeam, awayTeam];
-  await promisePool.execute(sql, params);
+  try {
+    const {homeTeam, awayTeam, homeScore, awayScore} = result;
+    const sql = `UPDATE matches SET homeScore = ?, awayScore = ? WHERE homeTeam = ? AND awayTeam = ?`;
+    const params = [homeScore, awayScore, homeTeam, awayTeam];
+    await promisePool.execute(sql, params);
+  } catch (error) {
+    console.error('Error in addResultToDatabase:', error);
+    throw error;
+  }
 }
 
 const addResultToUserTables = async (result, users) => {
@@ -61,34 +86,44 @@ const addMatchToUserTables = async (match, users) => {
 };
 
 const updateUserPoints = async (users) => {
-  for (const user of users) {
-    const username = user.username;
-    const userTableName = 'user_' + username + '_matches';
-    const [matches] = await promisePool.query(`SELECT * FROM ${userTableName}`);
-    let points = 0;
-    matches.forEach(match => {
-      const guess = match.guess;
-      if (guess !== null) {
-        if (match.homeScore + '-' + match.awayScore === guess) {
-          points += 5;
-        } else {
-          const [matchHomeScore, matchAwayScore] = [match.homeScore, match.awayScore];
-          const [guessHomeScore, guessAwayScore] = guess.split('-').map(Number);
-          if ((matchHomeScore > matchAwayScore && guessHomeScore > guessAwayScore) ||
-              (matchHomeScore < matchAwayScore && guessHomeScore < guessAwayScore) ||
-              (matchHomeScore === matchAwayScore && guessHomeScore === guessAwayScore)) {
-            points += 2;
+  try {
+    for (const user of users) {
+      const username = user.username;
+      if (typeof username !== 'string') {
+        throw new Error('Username must be a string');
+      }
+
+      const userTableName = 'user_' + username + '_matches';
+      const [matches] = await promisePool.query('SELECT * FROM ??', [userTableName]);
+
+      let points = 0;
+      for (const match of matches) {
+        const guess = match.guess;
+        if (guess !== null) {
+          if (match.homeScore + '-' + match.awayScore === guess) {
+            points += 5;
+          } else {
+            const [matchHomeScore, matchAwayScore] = [match.homeScore, match.awayScore];
+            const [guessHomeScore, guessAwayScore] = guess.split('-').map(Number);
+            if ((matchHomeScore > matchAwayScore && guessHomeScore > guessAwayScore) ||
+                (matchHomeScore < matchAwayScore && guessHomeScore < guessAwayScore) ||
+                (matchHomeScore === matchAwayScore && guessHomeScore === guessAwayScore)) {
+              points += 2;
+            }
           }
         }
       }
-    });
 
-    const [userData] = await promisePool.query(`SELECT * FROM users WHERE username = ?`, [username]);
-    if (userData.length > 0) {
-      const userPoints = points;
-      await promisePool.query(`UPDATE users SET points = ? WHERE username = ?`, [userPoints, username]);
+      const [userData] = await promisePool.query('SELECT * FROM users WHERE username = ?', [username]);
+      if (userData.length > 0) {
+        const userPoints = points;
+        await promisePool.query('UPDATE users SET points = ? WHERE username = ?', [userPoints, username]);
+      }
     }
+  } catch (error) {
+    console.error('Error in updateUserPoints:', error);
+    throw error;
   }
-}
+};
 
 export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables, updateUserPoints};

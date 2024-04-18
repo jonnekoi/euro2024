@@ -3,77 +3,78 @@ import {
   fetchPoints,
   setScore,
   addMatchToDatabase,
-  addMatchToUserTables,
   addResultToDatabase,
-  addResultToUserTables,
-  updateUserPoints,
+  addResultToUserTables, updateUserPoints, addMatchToUserTables,
 } from '../models/match-model.js';
-import {createMatchesForUser} from '../models/tableModel.js';
-import {getAllUsers} from '../models/user-models.js';
+import { getAllUsers } from '../models/user-models.js';
 
 const postMatches = async (req, res) => {
-  const username = req.params.username;
-  const result = await getMatches(username);
-  if (result) {
-    res.send(result);
+  try {
+    const username = req.params.username;
+    const matches = await getMatches(username);
+    res.status(200).json(matches);
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    res.status(500).json({ message: 'Failed to fetch matches' });
   }
 };
 
 const getPoints = async (req, res) => {
-  const result = await fetchPoints();
-  if (result) {
-    res.send(result);
+  try {
+    const points = await fetchPoints();
+    res.status(200).json(points);
+  } catch (error) {
+    console.error('Error fetching points:', error);
+    res.status(500).json({ message: 'Failed to fetch points' });
   }
 };
 
 const postScore = async (req, res) => {
-  const matchId = req.body.matchId;
-  const guess = req.body.guess;
-  const username = req.body.username;
-  const result = await setScore(matchId, guess, username);
-  console.log('post score', result);
-  if (result) {
+  try {
+    const { matchId, guess, username } = req.body;
+    await setScore(matchId, guess, username);
     res.sendStatus(201);
+  } catch (error) {
+    console.error('Error posting score:', error);
+    res.status(500).json({ message: 'Failed to post score' });
   }
 };
 
 const addMatch = async (req, res) => {
-  const match = {
-    homeTeam: req.body.homeTeam,
-    awayTeam: req.body.awayTeam,
-    homeScore: req.body.homeScore,
-    awayScore: req.body.awayScore
-  }
   try {
-    await addMatchToDatabase(req.body);
+    const matchData = {
+      homeTeam: req.body.homeTeam,
+      awayTeam: req.body.awayTeam,
+      homeScore: req.body.homeScore,
+      awayScore: req.body.awayScore
+    };
+    await addMatchToDatabase(matchData);
     const users = await getAllUsers();
-    console.log(users);
-    await addMatchToUserTables(req.body, users);
-    res.status(201).send({ message: "Match added" });
+    await addMatchToUserTables(matchData, users);
+    res.status(201).json({ message: 'Match added' });
   } catch (error) {
-    console.error("Error adding match:", error);
-    res.status(500).send({ message: error.message || "Internal Server Error" });
+    console.error('Error adding match:', error);
+    res.status(500).json({ message: 'Failed to add match' });
   }
 };
 
 const addResult = async (req, res) => {
-  const result = {
-    homeTeam: req.body.homeTeam,
-    awayTeam: req.body.awayTeam,
-    homeScore: req.body.homeScore,
-    awayScore: req.body.awayScore
-  }
   try {
-    await addResultToDatabase(req.body);
+    const resultData = {
+      homeTeam: req.body.homeTeam,
+      awayTeam: req.body.awayTeam,
+      homeScore: req.body.homeScore,
+      awayScore: req.body.awayScore
+    };
+    await addResultToDatabase(resultData);
     const users = await getAllUsers();
-    await addResultToUserTables(req.body, users);
+    await addResultToUserTables(resultData, users);
     await updateUserPoints(users);
-    res.status(201).send({ message: "Result added" });
-    console.log("Result Add OK");
+    res.status(201).json({ message: 'Result added' });
   } catch (error) {
-    console.error("Error adding result:", error);
-    res.status(500).send({ message: error.message || "Internal Server Error" });
+    console.error('Error adding result:', error);
+    res.status(500).json({ message: 'Failed to add result' });
   }
 };
 
-export {postMatches, getPoints, postScore, addMatch, addResult};
+export { postMatches, getPoints, postScore, addMatch, addResult };

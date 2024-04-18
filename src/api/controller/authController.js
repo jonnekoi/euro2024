@@ -4,30 +4,38 @@ import {getUserByUsername} from '../models/user-models.js';
 import 'dotenv/config';
 
 const postLogin = async (req, res) => {
-  //console.log('postLogin', req.body);
-  const user = await getUserByUsername(req.body.username);
-  if (!user) {
-    res.sendStatus(401);
-    return;
+  // Validate input
+  if (!req.body || !req.body.username || !req.body.password) {
+    return res.status(400).send({ message: 'Invalid input' });
   }
 
-  if (!bcrypt.compareSync(req.body.password, user.password)) {
-    res.sendStatus(401);
-    return;
+  try {
+    const user = await getUserByUsername(req.body.username);
+    if (!user) {
+      return res.status(401).send({ message: 'User not found' });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).send({ message: 'Incorrect password' });
+    }
+
+    const userWithNoPassword = {
+      user_id: user.user_id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = jwt.sign(userWithNoPassword, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+    res.json({ user: userWithNoPassword, token });
+  } catch (error) {
+    console.error('Error in postLogin:', error);
+    res.status(500).send({ message: 'Internal server error' });
   }
-
-  const userWithNoPassword = {
-    user_id: user.user_id,
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-  };
-
-  const token = jwt.sign(userWithNoPassword, process.env.JWT_SECRET, {
-    expiresIn: '24h',
-  });
-  res.json({ user: userWithNoPassword, token });
 };
 
 export {postLogin};
