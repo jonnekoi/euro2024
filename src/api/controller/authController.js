@@ -6,18 +6,18 @@ import 'dotenv/config';
 const postLogin = async (req, res) => {
   // Validate input
   if (!req.body || !req.body.username || !req.body.password) {
-    return res.status(400).send({ message: 'Invalid input' });
+    return res.status(400).send({ message: 'Syötä käyttäjänimi ja salasana' });
   }
 
   try {
     const user = await getUserByUsername(req.body.username);
     if (!user) {
-      return res.status(401).send({ message: 'User not found' });
+      return res.status(401).send({ message: 'Käyttäjätiliä ei löytynyt' });
     }
 
     const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(401).send({ message: 'Incorrect password' });
+      return res.status(401).send({ message: 'Virheellinen salasana' });
     }
 
     const userWithNoPassword = {

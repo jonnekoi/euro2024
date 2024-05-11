@@ -1,4 +1,4 @@
-import {addUser} from '../models/user-models.js';
+import {addUser, isUsernameAvailable} from '../models/user-models.js';
 import bcrypt from 'bcrypt';
 import {createMatchesForUser} from '../models/tableModel.js';
 
@@ -8,6 +8,11 @@ const postUser = async (req, res) => {
   }
 
   try {
+    const check = await isUsernameAvailable(req.body.username);
+    if (!check) {
+      res.status(409).json({ message: "Username is taken" });
+      return;
+    }
     req.body.password = await bcrypt.hash(req.body.password, 10);
     const result = await addUser(req.body);
     if (result.error) {

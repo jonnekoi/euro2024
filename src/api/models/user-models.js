@@ -48,5 +48,13 @@ const getAllUsers = async () => {
   }
 };
 
-export {addUser, getUserByUsername, getAllUsers};
+const isUsernameAvailable = async (username) => {
+  const [response] = await promisePool.query(
+      "SELECT * FROM users WHERE username = ?",
+      [username],
+  );
+  return response.length === 0;
+};
+
+export {addUser, getUserByUsername, getAllUsers, isUsernameAvailable};
 
