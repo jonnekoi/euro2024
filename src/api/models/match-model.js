@@ -1,4 +1,5 @@
 import promisePool from '../../utils/database.js';
+import {promise} from 'bcrypt/promises.js';
 
 const getMatches = async (username) => {
   try {
@@ -31,6 +32,15 @@ const setScore = async (matchId, guess, username) => {
   }
 }
 
+const postWinner = async (winner, username) => {
+  try {
+    await promisePool.query(`UPDATE users SET winner = '${winner}' WHERE username = '${username}'`);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 const addMatchToDatabase = async (match) => {
   try {
     const {homeTeam, awayTeam, homeScore, awayScore} = match;
@@ -54,6 +64,7 @@ const addResultToDatabase = async (result) => {
     throw error;
   }
 }
+
 
 const addResultToUserTables = async (result, users) => {
   const {homeTeam, awayTeam, homeScore, awayScore} = result;
@@ -84,6 +95,7 @@ const addMatchToUserTables = async (match, users) => {
     }
   }
 };
+
 
 const updateUserPoints = async (users) => {
   try {
@@ -126,4 +138,5 @@ const updateUserPoints = async (users) => {
   }
 };
 
-export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables, updateUserPoints};
+
+export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables, updateUserPoints, postWinner};

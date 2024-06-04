@@ -2,6 +2,7 @@ import {
   getMatches,
   fetchPoints,
   setScore,
+  postWinner,
   addMatchToDatabase,
   addResultToDatabase,
   addResultToUserTables, updateUserPoints, addMatchToUserTables,
@@ -77,4 +78,15 @@ const addResult = async (req, res) => {
   }
 };
 
-export { postMatches, getPoints, postScore, addMatch, addResult };
+const addWinner = async (req, res) => {
+  try {
+    const { winner, username } = req.body;
+    await postWinner(winner, username);
+    res.status(201).json({ message: 'Winner added' });
+  } catch (error) {
+    console.error('Error adding winner:', error);
+    res.status(500).json({ message: 'Failed to add winner' });
+  }
+}
+
+export { postMatches, getPoints, postScore, addMatch, addResult, addWinner };
