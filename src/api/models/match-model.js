@@ -1,5 +1,4 @@
 import promisePool from '../../utils/database.js';
-import {promise} from 'bcrypt/promises.js';
 
 const getMatches = async (username) => {
   try {
@@ -24,7 +23,7 @@ const winnerGuessed = async (username) => {
 
 const fetchPoints = async () => {
   try {
-    const [rows] = await promisePool.query('SELECT username, points FROM users ORDER BY points DESC LIMIT 5');
+    const [rows] = await promisePool.query('SELECT username, points FROM users ORDER BY points DESC LIMIT 15');
     return rows;
   } catch (error) {
     console.error('Error in fetchPoints:', error);
@@ -108,6 +107,8 @@ const addMatchToUserTables = async (match, users) => {
 
 
 const updateUserPoints = async (users) => {
+  console.log('updateUserPoints function called'); // New console.log statement
+
   try {
     for (const user of users) {
       const username = user.username;
@@ -116,6 +117,7 @@ const updateUserPoints = async (users) => {
       }
 
       const userTableName = 'user_' + username + '_matches';
+      console.log('Executing first SQL query'); // New console.log statement
       const [matches] = await promisePool.query('SELECT * FROM ??', [userTableName]);
 
       let points = 0;
@@ -136,11 +138,16 @@ const updateUserPoints = async (users) => {
         }
       }
 
-      const [userData] = await promisePool.query('SELECT * FROM users WHERE username = ?', [username]);
-      if (userData.length > 0) {
-        const userPoints = points;
-        await promisePool.query('UPDATE users SET points = ? WHERE username = ?', [userPoints, username]);
+      const [winnerData] = await promisePool.query('SELECT country FROM winner');
+      const winner = winnerData.length > 0 ? winnerData[0].country : null;
+
+      const [userData] = await promisePool.query('SELECT winner FROM users WHERE username = ?', [username]);
+      const userWinnerGuess = userData.length > 0 ? userData[0].winner : null;
+
+      if (winner && userWinnerGuess === winner) {
+        points += 25;
       }
+      await promisePool.query('UPDATE users SET points = ? WHERE username = ?', [points, username]);
     }
   } catch (error) {
     console.error('Error in updateUserPoints:', error);
