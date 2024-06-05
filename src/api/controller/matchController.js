@@ -5,6 +5,7 @@ import {
   postWinner,
   addMatchToDatabase,
   addResultToDatabase,
+  winnerGuessed,
   addResultToUserTables, updateUserPoints, addMatchToUserTables,
 } from '../models/match-model.js';
 import { getAllUsers } from '../models/user-models.js';
@@ -89,4 +90,15 @@ const addWinner = async (req, res) => {
   }
 }
 
-export { postMatches, getPoints, postScore, addMatch, addResult, addWinner };
+const checkWinner = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const guess = await winnerGuessed(username);
+    res.status(200).json(guess);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to check winner' });
+  }
+}
+
+export { postMatches, getPoints, postScore, addMatch, addResult, addWinner, checkWinner };

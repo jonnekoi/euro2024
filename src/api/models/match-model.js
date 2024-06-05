@@ -12,6 +12,16 @@ const getMatches = async (username) => {
   }
 };
 
+const winnerGuessed = async (username) => {
+  try {
+    const [rows] = await promisePool.query(`SELECT winner FROM users WHERE username = ?`, [username]);
+    return rows[0].winner;
+  } catch (error) {
+    console.error('Error in selectWinnerByUsername:', error);
+    throw error;
+  }
+};
+
 const fetchPoints = async () => {
   try {
     const [rows] = await promisePool.query('SELECT username, points FROM users ORDER BY points DESC LIMIT 5');
@@ -139,4 +149,4 @@ const updateUserPoints = async (users) => {
 };
 
 
-export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables, updateUserPoints, postWinner};
+export {getMatches, fetchPoints, setScore, addMatchToDatabase, addMatchToUserTables, addResultToDatabase, addResultToUserTables, winnerGuessed, updateUserPoints, postWinner};
